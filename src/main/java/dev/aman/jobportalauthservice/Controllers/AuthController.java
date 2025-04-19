@@ -44,6 +44,7 @@ public class AuthController {
     //Will take token to validate and will return message
     @PatchMapping("/logout")
     public String userLogout(@RequestBody LogoutRequestDTO logoutRequestDto){
+
         return null;
     }
     //Validate Token Method
@@ -51,6 +52,7 @@ public class AuthController {
     //Returning complete token will make that possible
     @GetMapping("/validate")
     public UserDTO validateToke(String token){
-        return null;
+        User user = authService.validateToken(token);
+        return UserDTO.from(user);
     }
 }

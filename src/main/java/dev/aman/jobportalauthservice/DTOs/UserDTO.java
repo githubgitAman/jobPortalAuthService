@@ -36,6 +36,10 @@ public class UserDTO {
     }
 
     public static UserDTO from(User user) {
+        //Checking null pointer exception
+        if(user == null) {
+            return null;
+        }
         UserDTO userDTO = new UserDTO();
         userDTO.setName(user.getName());
         userDTO.setEmail(user.getEmail());

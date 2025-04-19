@@ -56,11 +56,31 @@ public class SelfAuthService implements AuthService {
     }
     @Override
     public void userLogout(String token) {
-
+        Optional<Token> optionalToken = tokenRepository.findByValueAndDeletedAndExpiryAtGreaterThan(token,
+                false, new Date());
+        if(optionalToken.isEmpty()){
+            throw new RuntimeException("User not found");
+        }
+        //Getting the token object
+        Token storedToken = optionalToken.get();
+        //Putting the token deleted value as true
+        storedToken.setDeleted(true);
+        //Saving token in DB
+        tokenRepository.save(storedToken);
+        //Here we are saving even after updating else the changes won't be reflected back
     }
     @Override
     public User validateToken(String token) {
-        return null;
+        //First need to check whether token is there in DB or not
+        //Expiry time should be within defined time limit
+        //Checking token with given value, deleted as false and expiry time
+        Optional<Token> optionalToken = tokenRepository.findByValueAndDeletedAndExpiryAtGreaterThan(token,
+                false, new Date());
+        if(optionalToken.isEmpty()){
+            return null;
+        }
+        //Getting users from token
+        return optionalToken.get().getUsers();
     }
     //Method to generate Token
     private Token createToken(User user) {
