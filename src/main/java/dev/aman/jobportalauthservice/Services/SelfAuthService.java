@@ -55,11 +55,11 @@ public class SelfAuthService implements AuthService {
         return userRepository.save(user);
     }
     @Override
-    public void userLogout(String token) {
+    public String userLogout(String token) {
         Optional<Token> optionalToken = tokenRepository.findByValueAndDeletedAndExpiryAtGreaterThan(token,
                 false, new Date());
         if(optionalToken.isEmpty()){
-            throw new RuntimeException("User not found");
+            return "User not found";
         }
         //Getting the token object
         Token storedToken = optionalToken.get();
@@ -67,6 +67,7 @@ public class SelfAuthService implements AuthService {
         storedToken.setDeleted(true);
         //Saving token in DB
         tokenRepository.save(storedToken);
+        return "User logged out successfully";
         //Here we are saving even after updating else the changes won't be reflected back
     }
     @Override

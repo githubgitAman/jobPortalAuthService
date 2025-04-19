@@ -44,14 +44,13 @@ public class AuthController {
     //Will take token to validate and will return message
     @PatchMapping("/logout")
     public String userLogout(@RequestBody LogoutRequestDTO logoutRequestDto){
-
-        return null;
+        return authService.userLogout(logoutRequestDto.getToken());
     }
     //Validate Token Method
     //Will take token and will return UserDTO as we need to validate some extra info like roles etc
     //Returning complete token will make that possible
-    @GetMapping("/validate")
-    public UserDTO validateToke(String token){
+    @GetMapping("/validate/{token}")
+    public UserDTO validateToke(@PathVariable String token){
         User user = authService.validateToken(token);
         return UserDTO.from(user);
     }
