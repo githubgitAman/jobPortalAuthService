@@ -8,14 +8,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SpringSecurityConfigurations {
     //Bydefault Spring Security Config dependency secures all endpoints so need to add some filters
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        //Allowing all endpoint APIs
-                        .anyRequest().permitAll() // 👈 Allow unauthenticated access
-                )
-                .build();
-    }
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        return http
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        //Allowing all endpoint APIs
+//                        .anyRequest().permitAll() // 👈 Allow unauthenticated access
+//                )
+//                .build();
+//    }
 }
