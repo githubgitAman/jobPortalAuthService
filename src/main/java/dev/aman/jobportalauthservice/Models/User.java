@@ -1,6 +1,7 @@
 package dev.aman.jobportalauthservice.Models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class User extends BaseModel {
     private String email;
     private String hashedPassword;
     private boolean isVerified;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 
     public String getName() {
