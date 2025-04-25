@@ -1,10 +1,14 @@
 package dev.aman.jobportalauthservice.Services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.aman.jobportalauthservice.DTOs.SendEmailDTO;
 import dev.aman.jobportalauthservice.Models.Token;
 import dev.aman.jobportalauthservice.Models.User;
 import dev.aman.jobportalauthservice.Repositories.TokenRepository;
 import dev.aman.jobportalauthservice.Repositories.UserRepository;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +22,19 @@ public class SelfAuthService implements AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenRepository tokenRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     public SelfAuthService(UserRepository userRepository,
                            BCryptPasswordEncoder bCryptPasswordEncoder,
-                           TokenRepository tokenRepository) {
+                           TokenRepository tokenRepository,
+                           KafkaTemplate<String, String> kafkaTemplate,
+                           ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.tokenRepository = tokenRepository;
+        this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -52,6 +62,20 @@ public class SelfAuthService implements AuthService {
         //We need not store password directly
         //We need to encrypt the password using BCrypt Algo
         user.setHashedPassword(bCryptPasswordEncoder.encode(password));
+        //Push a sendEmail event to kafka to send welcome email
+        SendEmailDTO sendEmailDTO = new SendEmailDTO();
+        sendEmailDTO.setTo(email);
+        sendEmailDTO.setSubject("Welcome Email");
+        sendEmailDTO.setBody("Welcome" + name + "to our job portal");
+        try {
+            kafkaTemplate.send("WelcomeEmail",
+                    //Converting Java Object to String to send over network
+                    //Can throw exception so using try/catch block
+                    objectMapper.writeValueAsString(sendEmailDTO)
+                    );
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return userRepository.save(user);
     }
     @Override
